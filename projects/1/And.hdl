@@ -11,5 +11,8 @@ CHIP And {
     OUT out;
     
     PARTS:
-    //// Replace this comment with your code.
+    //The truth table of the And gate is the opposite of the Nand
+    //So, the And gate can be implemented by adding a Not gate after the Nand gate
+    Nand(a=a, b=b, out=nandout);
+    Not(in=nandout, out=out);
 }
