@@ -1,7 +1,7 @@
 *.out
 *.cmp
+*.tst
 *.temp
 .DS_Store
-tools/Assembler.bat
-
 tools/
+Thumbs.db
