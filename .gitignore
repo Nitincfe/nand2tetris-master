@@ -1,4 +1,7 @@
+*.out
+*.cmp
+*.temp
+.DS_Store
+tools/Assembler.bat
+
 tools/
-bin/
-*.class
-*.jar
