@@ -12,5 +12,12 @@ CHIP DMux {
     OUT a, b;
 
     PARTS:
-    //// Replace this comment with your code.
+    //Creating an inverted selector signal for output 'a'
+    Not(in=sel, out=nsel);
+
+    //The output is 'a' when sel is '0'
+    And(a=in, b=nsel, out=a);
+
+    //The output is 'b' when sel is '1'
+    And(a=in, b=sel, out=b);
 }
