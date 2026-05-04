@@ -11,5 +11,14 @@ CHIP Mux {
     OUT out;
 
     PARTS:
-    //// Replace this comment with your code.
+    //Passing the sel input through a Not gate, 
+    //to have it as an input to one of the And gates
+    Not(in=sel, out=nsel);
+
+    //Passing the inputs to (a, b, sel, and nsel) two And gates
+    And(a=a, b=nsel, out=andout1);
+    And(a=b, b=sel, out=andout2);
+
+    //Selecting between the outputs of the two And gates
+    Or(a=andout1, b=andout2, out=out);
 }
