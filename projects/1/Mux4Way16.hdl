@@ -14,5 +14,11 @@ CHIP Mux4Way16 {
     OUT out[16];
     
     PARTS:
-    //// Replace this comment with your code.
-}
+    //Stage 1: Selection based on the least significant bit (sel[0])
+    Mux16(a=a, b=b, sel=sel[0], out=f1);
+    Mux16(a=c, b=d, sel=sel[0], out=f2);
+
+    //Stage 2: Selection based on the most significant bit (sel[1])
+    Mux16(a=f1, b=f2, sel=sel[1], out=out);
+    
+    }
