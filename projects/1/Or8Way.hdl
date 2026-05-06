@@ -11,5 +11,16 @@ CHIP Or8Way {
     OUT out;
 
     PARTS:
-    //// Replace this comment with your code.
+    //Layer 1: Reduce 8 inputs to 4
+    Or(a=in[0], b=in[1], out=f1);
+    Or(a=in[2], b=in[3], out=f2);
+    Or(a=in[4], b=in[5], out=f3);
+    Or(a=in[6], b=in[7], out=f4);
+
+    //Layer 2: Reduce 4 to 2
+    Or(a=f1, b=f2, out=m1);
+    Or(a=f3, b=f4, out=m2);
+
+    //final output
+    Or(a=m1, b=m2, out=out);
 }
