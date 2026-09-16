@@ -5,7 +5,7 @@ class CodeWriter:
         self.file = open(file_path, "w")
         self.label_count = 0
         self.file_name = Path(file_path).stem
-
+        self.function_name = ""
 
     def write_arithmetic(self, command):
         if command in ['add', 'sub', 'and', 'or']:
@@ -159,6 +159,36 @@ class CodeWriter:
                                 "D=M\n"
                                 f"@{self.file_name}.{index}\n"
                                 "M=D\n")
+
+
+    def writelabel(self, label):
+        self.file.write(f"({self.function_name}${label})\n")
+
+    def writeGoto(self, label):
+        self.file.write(f"@{self.function_name}${label}\n"
+                        "0;JMP\n")
+
+    def writeIf(self, label):
+        self.file.write("@SP\n"
+                        "AM=A-1\n"
+                        "D=M\n"
+                        f"@{self.function_name}${label}\n"
+                        "D;JNE\n"
+                        )
+
+    def writeFunction(self, functionName, nVars):
+        self.current_function = functionName
+
+        self.file.write(f"({functionName})\n")
+
+        #Loop nVars time to initialize local variable to 0
+        for _ in range(int(nVars)):
+            self.file.write("@SP\n")
+            self.file.write("A=M\n")
+            self.file.write("M=0\n")
+            self.file.write("@SP\n")
+            self.file.write("M=M_+1\n")
+                        
 
                 
     def close(self):
