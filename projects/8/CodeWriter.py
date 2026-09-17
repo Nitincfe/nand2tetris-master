@@ -190,6 +190,82 @@ class CodeWriter:
             self.file.write("M=M_+1\n")
                         
 
+    def writeReturn(self):
+        #frame = LCL (storing frame in R13)
+        self.file.write("@LCL\n")
+        self.file.write("D=M\n")
+        self.file.write("@R13\n")
+        self.file.write("M=D\n")        
+
+        #store return address in R!4 retAddr = *(frame - 5)
+        self.file.write("@5\n")
+        self.file.write("A=D-A\n")
+        self.file.write("D=M\n")
+        self.file.write("@R14\n")
+        self.file.write("M=D\n")
+
+        #*ARG = pop()
+        self.file.write("@SP\n")
+        self.file.write("AM=M-1\n")
+        self.file.write("D=M\n")
+        self.file.write("@ARG\n")
+        self.file.write("A=M\n")
+        self.file.write("M=D\n")
+
+        #SP = ARG + 1
+        self.file.write("@ARG\n")
+        self.file.write("D=M+1\n")
+        self.file.write("@SP\n")
+        self.file.write("D=M+1\n")
+        
+        #Restore THAT 
+        self.file.write("@R13\n")
+        self.file.write("D=M\n")
+        self.file.write("@1\n")
+        self.file.write("A=D-A\n")
+        self.file.write("D=M\n")
+        self.file.write("@THAT\n")
+        self.file.write("M=D\n")
+
+        #Restore THIS
+        
+        self.file.write("@R13\n")
+        self.file.write("D=M\n")
+        self.file.write("@2\n")
+        self.file.write("A=D-A\n")
+        self.file.write("D=M\n")
+        self.file.write("@THIS\n")
+        self.file.write("M=D\n")
+
+        #Restore ARG
+
+        self.file.write("@R13\n")
+        self.file.write("D=M\n")
+        self.file.write("@3\n")
+        self.file.write("A=D-A\n")
+        self.file.write("D=M\n")
+        self.file.write("@ARG\n")
+        self.file.write("M=D\n")
+
+        #Restore LCL 
+
+        self.file.write("@R13\n")
+        self.file.write("D=M\n")
+        self.file.write("@4\n")
+        self.file.write("A=D-A\n")
+        self.file.write("D=M\n")
+        self.file.write("@LCL\n")
+        self.file.write("M=D\n")
+
+
+        #goto RetAddress 
+        self.file.write("@R14\n")
+        self.file.write("A=M\n")
+        self.file.write("0;JMP\n")
+        
+        
+
+        
                 
     def close(self):
         self.file.close()
