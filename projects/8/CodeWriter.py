@@ -5,7 +5,21 @@ class CodeWriter:
         self.file = open(file_path, "w")
         self.label_count = 0
         self.file_name = Path(file_path).stem
-        self.function_name = ""
+        self.current_function = ""
+        self.call_count = 0
+
+    def setFileName(self, file_name):
+        self.file_name = file_name
+
+    def writeInit(self):
+    # Initialize SP to 256
+        self.file.write("@256\n")
+        self.file.write("D=A\n")
+        self.file.write("@SP\n")
+        self.file.write("M=D\n")
+        
+        # Call Sys.init with 0 arguments
+        self.writeCall("Sys.init", 0)
 
     def write_arithmetic(self, command):
         if command in ['add', 'sub', 'and', 'or']:
@@ -161,18 +175,18 @@ class CodeWriter:
                                 "M=D\n")
 
 
-    def writelabel(self, label):
-        self.file.write(f"({self.function_name}${label})\n")
+    def writeLabel(self, label):
+        self.file.write(f"({self.current_function}${label})\n")
 
     def writeGoto(self, label):
-        self.file.write(f"@{self.function_name}${label}\n"
+        self.file.write(f"@{self.current_function}${label}\n"
                         "0;JMP\n")
 
     def writeIf(self, label):
         self.file.write("@SP\n"
                         "AM=A-1\n"
                         "D=M\n"
-                        f"@{self.function_name}${label}\n"
+                        f"@{self.current_function}${label}\n"
                         "D;JNE\n"
                         )
 
@@ -187,7 +201,7 @@ class CodeWriter:
             self.file.write("A=M\n")
             self.file.write("M=0\n")
             self.file.write("@SP\n")
-            self.file.write("M=M_+1\n")
+            self.file.write("M=M+1\n")
                         
 
     def writeReturn(self):
@@ -216,7 +230,7 @@ class CodeWriter:
         self.file.write("@ARG\n")
         self.file.write("D=M+1\n")
         self.file.write("@SP\n")
-        self.file.write("D=M+1\n")
+        self.file.write("M=D\n")
         
         #Restore THAT 
         self.file.write("@R13\n")
@@ -262,11 +276,78 @@ class CodeWriter:
         self.file.write("@R14\n")
         self.file.write("A=M\n")
         self.file.write("0;JMP\n")
-        
-        
+                    
+    def writeCall(self, functionName, nArgs):
+        #Generating an unique address label using the caller's name
+        return_address = f"{self.current_function}$ret.{self.call_count}"
+        self.call_count += 1
 
-        
-                
+        #Push the return address onto the stack
+        self.file.write(f"@{return_address}\n")
+        self.file.write("D=A\n")
+        self.file.write("@SP\n")
+        self.file.write("A=M\n")
+        self.file.write("M=D\n")
+        self.file.write("@SP\n")
+        self.file.write("M=M+1\n")
+
+        #push LCL 
+        self.file.write("@LCL\n")
+        self.file.write("D=M\n")
+        self.file.write("@SP\n")
+        self.file.write("A=M\n")
+        self.file.write("M=D\n")
+        self.file.write("@SP\n")
+        self.file.write("M=M+1\n")
+
+        #push ARG 
+        self.file.write("@ARG\n")
+        self.file.write("D=M\n")
+        self.file.write("@SP\n")
+        self.file.write("A=M\n")
+        self.file.write("M=D\n")
+        self.file.write("@SP\n")
+        self.file.write("M=M+1\n")    
+
+        #push THIS 
+        self.file.write("@THIS\n")
+        self.file.write("D=M\n")
+        self.file.write("@SP\n")
+        self.file.write("A=M\n")
+        self.file.write("M=D\n")
+        self.file.write("@SP\n")
+        self.file.write("M=M+1\n")
+
+        #push THAT 
+        self.file.write("@THAT\n")
+        self.file.write("D=M\n")
+        self.file.write("@SP\n")
+        self.file.write("A=M\n")
+        self.file.write("M=D\n")
+        self.file.write("@SP\n")
+        self.file.write("M=M+1\n")
+
+        #Reposition the ARG pointer to SP - 5 - nArgs
+        total_offset = int(5) + int(nArgs)
+
+        self.file.write("@SP\n")
+        self.file.write("D=M\n")
+        self.file.write(f"@{total_offset}\n")
+        self.file.write("D=D-A\n")
+        self.file.write("@ARG\n")
+        self.file.write("M=D\n")
+
+        #Repositioning the LCL pointer to the current SP
+        self.file.write("@SP\n")
+        self.file.write("D=M\n")
+        self.file.write("@LCL\n")
+        self.file.write("M=D\n")
+
+        #Generating an unconditional jump to the target FunctionName
+        self.file.write(f"@{functionName}\n")
+        self.file.write("0;JMP\n")
+        self.file.write(f"({return_address})\n")
+
     def close(self):
         self.file.close()
 
