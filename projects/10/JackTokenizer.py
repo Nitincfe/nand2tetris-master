@@ -6,6 +6,12 @@ class JackTokenizer:
         self.type_value_list = []
         self.symbols = set("{}()[].,;+-*/&|<>=~")
 
+        self.keyword_list = set(["class", "constructor", "function", "method",
+                            "field", "static", "var",
+                            "int", "char", "boolean", "void",
+                            "true", "false", "null", "this",
+                            "let", "do", "if", "else", "while", "return"])
+
 
     def tokenize_line(self, line):
         tokens = []
@@ -28,22 +34,27 @@ class JackTokenizer:
                     i += 1
                 tokens.append(("integerConstant", text))
 
-            elif ch.isalpha():
+            elif ch.isalpha() or ch == "_":
                 text = ""
-                while i < len(line) and line[i].isalpha():
+                while i < len(line) and (line[i].isalnum() or line[i] == "_"):
                     text += line[i]
                     i += 1
                 if text in self.keyword_list:
                     tokens.append(("keyword", text))
                 else:
-                    tokens.append(("integer", text))
+                    tokens.append(("identifier", text))    
 
-            elif ch.isalnum() or ch == "_":
+            elif ch == '"':
                 text = ""
-                while i < len(line) and line[i].isalnum() or line[i] == "_":
+                i += 1
+                while i < len(line) and line[i] != '"':
                     text += line[i]
                     i += 1
-                tokens.append(("integer", text))
+                tokens.append(('stringConstant', text))
+                i += 1
+
+            else: 
+                i += 1
 
         return tokens
 
