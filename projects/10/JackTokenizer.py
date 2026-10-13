@@ -71,6 +71,57 @@ class JackTokenizer:
                 i += 1
                 tokens.append((INT_CONST, text))
 
+            elif ch.isalpha() or ch == "_":
+                text = ""
+                while i < len(line) and (line[i].isalnum() or line[i] == "_"):
+                    text += line[i]
+                    i += 1
+                if text in self.KEYWORDS:
+                    tokens.append((KEYWORD, text))
+                else:
+                    tokens.append((IDENTIFIER, text)) 
+
+            elif ch == '"':
+                text = ""
+                while i < len(line) and line[i] != '"':
+                    text += line[i]
+                    i += 1
+                tokens.append((STRING_CONST, text))
+                i += 1
+
+        return tokens
+
+
+    #API as per given in the book
+
+    def hasMoreTokens(self):
+        return self.index + 1 < len(self.tokens)
+
+    def advance(self):
+        """"Call only if hasMoreTokens() is true"""
+        self.index += 1
+        self.current = self.tokens[self.index]
+
+        def tokenType(self):
+            return self.current[0]
+
+        def KeyWord(self):
+            """"Returns CLASS, METHOD, ... (only if tokenType is KEYWORD)."""  
+            return self.current[1].upper()
+
+        def symbol(self):
+            return self.current[1]
+
+        def identifier(self):
+            return self.current[1]
+
+        def intVal(self):
+            return int(self.current[1])
+
+        def stringVal(self):
+            return self.current[1]
+        
+
             
 
 
