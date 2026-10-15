@@ -1,4 +1,8 @@
-import JackTokenizer as tokenizer 
+import JackTokenizer 
+
+
+from JackTokenizer import (JackTokenizer, KEYWORD, SYMBOL,
+                           IDENTIFIER, INT_CONST, STRING_CONST)
 
 XML_ESCAPES = {"<": "&lt;", ">": "&gt;", '"': "&quot;", "&": "&amp;"}
 
@@ -11,9 +15,10 @@ def escape(text):
 
 class CompilationEngine:
 
-    def __init__(self, input_file, output_file):
-        for 
-        
+    def __init__(self, input_path, output_path):
+        self.tokenizer = JackTokenizer(input_path)
+        self.out = open(output_path, "w")
+        self.tokenizer.advance()
     
     def _write_token(self):
         t = self.tokenizer.tokenType()
@@ -30,6 +35,27 @@ class CompilationEngine:
             tag, value = "stringConstant", escape(self.tokenizer.stringVal())
 
         self.out.write(f"<{tag}> {(value)} </{tag}>\n")
+
+        if self.tokenizer.hasMoreTokens():
+            self.tokenizer.advance()
+
+    def compileClass(self):
+        self.out.write("<class>\n")
+        self._write_token()
+        self._write_token()
+        self._write_token()
+        while (self.tokenizer.tokenType() == KEYWORD and self.tokenizer.keyWord() in ("STATIC", "FIELD")):
+            self.compileClassVarDec()
+        while (self.tokenizer.tokenType() == KEYWORD and self.tokenizer.keyWord() in ("CONSTRUCTOR", "FUNCTION", "METHOD")):
+            self.compileSubroutine()
+        self._write_token()
+        self.out.write("</class>\n")
+        self.close()
+
+
+
+def close(self):
+    self.out.close()
 
 
         
