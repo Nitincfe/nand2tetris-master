@@ -52,10 +52,85 @@ class CompilationEngine:
         self.out.write("</class>\n")
         self.close()
 
+    def compileClassVarDec(self):
+        self.out.write("<classVarDec>\n")
+        self._write_token()
+        self._write_token()
+        while not (self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() == ";"):
+            self._write_token()
+        self._write_token()
+        self.out.write("</classVarDec>\n")
 
+    def compileSubroutine(self):
+        self.out.write("<subroutineDec>\n")
+        self._write_token()
+        self._write_token()
+        self._write_token()
+        self._write_token()
+        self.compileParameterList()
+        self._write_token()
+        self.compileSubroutineBody()
+        self.out.write("</subroutineDec>\n")
 
-def close(self):
-    self.out.close()
+    def compileParameterList(self):
+        self.out.write("<parameterList>\n")
+        while not(self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() == ")"):
+            self._write_token()
+        self.out.write("</parameterList>\n")
+
+    def compileVarDec(self):
+        self.out.write("<varDec>\n")
+        while not(self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() == ";"):
+            self._write_token()
+        self._write_token()
+        self.out.write("</varDec>\n")
+
+    def compileSubroutineBody(self):
+        self.out.write("<subroutineBody>\n")
+        self._write_token()
+        while (self.tokenizer.tokenType() == KEYWORD and self.tokenizer.keyWord() == "VAR"):
+            self.compileVarDec()
+        self.compileStatements()
+        self._write_token()
+        self.out.write("</subroutineBody>\n")
+
+    def compileStatements(self):
+        self.out.write("<statements>\n")
+        while self.tokenizer.tokenType() == KEYWORD and self.tokenizer.keyWord() in ["LET", "IF", "WHILE", "DO", "RETURN"]:
+            if self.tokenizer.keyWord() == "LET":
+                self.compileLet()
+            elif self.tokenizer.keyWord() == "IF":
+                self.compileIf()
+            elif self.tokenizer.keyWord() == "WHILE":
+                self.compileWhile()
+            elif self.tokenizer.keyWord() == "DO":
+                self.compileDo()
+            elif self.tokenizer.keyWord() == "RETURN":
+                self.compileReturn()
+        self.out.write("</statements>\n")
+
+    def compileReturn(self):
+        self.out.write("<returnStatement>\n")
+        self._write_token()
+        if not (self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() == ";"):
+            self.compileExpression()
+        self._write_token()
+        self.out.write("</returnStatement>\n")
+
+    def compileDo(self):
+        self.out.write("<doStatement>\n")
+        self._write_token()                     
+        while not (self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() == "("):
+            self._write_token()                  
+        self._write_token()                       
+        self.compileExpressionList()
+        self._write_token()                    
+        self._write_token()                      
+        self.out.write("</doStatement>\n")
+
+        
+    def close(self):
+        self.out.close()
 
 
         
