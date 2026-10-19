@@ -128,7 +128,62 @@ class CompilationEngine:
         self._write_token()                      
         self.out.write("</doStatement>\n")
 
-        
+    def compileLet(self):
+        self.out.write("<letStatement>\n")
+        self._write_token()
+        self._write_token()
+        self._write_token()
+        self.compileExpression()
+        self._write_token()
+        self.out.write("</letStatement\n")
+
+    def compileWhile(self):
+        self.out.write("<whileStatement>\n")
+        self._write_token()
+        self._write_token()
+        self.compileExpression()
+        self._write_token()
+        self._write_token()
+        self.compileStatements()
+        self._write_token()
+        self.out.write("</whileStatement>\n")
+
+    def compileIf(self):
+        self.out.write("<ifStatement>\n")
+        self._write_token()
+        self._write_token()
+        self.compileExpression()
+        self._write_token()
+        self._write_token()
+        self.compileStatements()
+        self._write_token()
+        if self.tokenizer.tokenType() == KEYWORD and self.tokenizer.keyWord() == "ELSE":
+            self._write_token()
+            self._write_token()
+            self.compileStatements()
+            self._write_token()
+        self.out.write("</ifStatement>\n")
+
+    def compileExpression(self):
+        self.out.write("<expression>\n")
+        self.compileTerm()
+        self.out.write("</expression>\n")
+
+    def compileTerm(self):
+        self.out.write("<term>\n")
+        self._write_token()
+        self.out.write("</term>\n")
+
+    def compileExpressionList(self):
+        count = 0
+        self.out.write("<expressionList>\n")
+        if not (self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() == ")"):
+            self.compileExpression()
+            count += 1
+        self.out.write("</expressionList>\n")
+        return count
+
+
     def close(self):
         self.out.close()
 
