@@ -46,14 +46,14 @@ class JackTokenizer:
         while i < len(line):
             ch = line[i]
 
-            if ch.ispace():
+            if ch.isspace():
                 i += 1
 
             elif line.startswith("//", i):
                 break 
 
-            elif line.startswith("*/", i):
-                end = line.find("/*", i + 2)
+            elif line.startswith("/*", i):
+                end = line.find("*/", i + 2)
                 if end == -1:
                     self.in_comment = True
                     break
@@ -102,25 +102,25 @@ class JackTokenizer:
         self.index += 1
         self.current = self.tokens[self.index]
 
-        def tokenType(self):
-            return self.current[0]
+    def tokenType(self):
+        return self.current[0]
 
-        def KeyWord(self):
-            """"Returns CLASS, METHOD, ... (only if tokenType is KEYWORD)."""  
-            return self.current[1].upper()
+    def keyWord(self):
+        """"Returns CLASS, METHOD, ... (only if tokenType is KEYWORD)."""  
+        return self.current[1].upper()
 
-        def symbol(self):
-            return self.current[1]
+    def symbol(self):
+        return self.current[1]
 
-        def identifier(self):
-            return self.current[1]
+    def identifier(self):
+        return self.current[1]
 
-        def intVal(self):
-            return int(self.current[1])
+    def intVal(self):
+        return int(self.current[1])
 
-        def stringVal(self):
-            return self.current[1]
-        
+    def stringVal(self):
+        return self.current[1]
+    
 
             
 
