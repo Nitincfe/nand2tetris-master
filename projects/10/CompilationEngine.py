@@ -5,6 +5,7 @@ from JackTokenizer import (JackTokenizer, KEYWORD, SYMBOL,
                            IDENTIFIER, INT_CONST, STRING_CONST)
 
 XML_ESCAPES = {"<": "&lt;", ">": "&gt;", '"': "&quot;", "&": "&amp;"}
+OPS = {"+", "-", "*", "/", "&", "|", "<", ">", "="}
 
 def escape(text):
     result = ""
@@ -33,6 +34,7 @@ class CompilationEngine:
             tag, value = "integerConstant", self.tokenizer.intVal()
         else:
             tag, value = "stringConstant", escape(self.tokenizer.stringVal())
+            
 
         self.out.write(f"<{tag}> {(value)} </{tag}>\n")
 
@@ -130,11 +132,15 @@ class CompilationEngine:
 
     def compileLet(self):
         self.out.write("<letStatement>\n")
-        self._write_token()
-        self._write_token()
-        self._write_token()
+        self._write_token()                           
+        self._write_token()                           
+        if self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() == "[":
+            self._write_token()                       
+            self.compileExpression()
+            self._write_token()                       
+        self._write_token()                          
         self.compileExpression()
-        self._write_token()
+        self._write_token()                          
         self.out.write("</letStatement>\n")
 
     def compileWhile(self):
@@ -164,14 +170,50 @@ class CompilationEngine:
             self._write_token()
         self.out.write("</ifStatement>\n")
 
+
     def compileExpression(self):
         self.out.write("<expression>\n")
         self.compileTerm()
+        while self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() in OPS:
+            self._write_token()          # operator
+            self.compileTerm()
         self.out.write("</expression>\n")
 
     def compileTerm(self):
         self.out.write("<term>\n")
-        self._write_token()
+        t = self.tokenizer.tokenType()
+
+        if t in (INT_CONST, STRING_CONST, KEYWORD):   
+            self._write_token()
+
+        elif t == IDENTIFIER:
+            self._write_token()                      
+            if self.tokenizer.tokenType() == SYMBOL:
+                s = self.tokenizer.symbol()
+                if s == "[":                         
+                    self._write_token()
+                    self.compileExpression()
+                    self._write_token()              
+                elif s == "(":                        
+                    self._write_token()
+                    self.compileExpressionList()
+                    self._write_token()               
+                elif s == ".":                        
+                    self._write_token()               
+                    self._write_token()              
+                    self._write_token()              
+                    self.compileExpressionList()
+                    self._write_token()              
+
+        elif t == SYMBOL:
+            if self.tokenizer.symbol() == "(":        
+                self._write_token()
+                self.compileExpression()
+                self._write_token()                  
+            else:                                    
+                self._write_token()
+                self.compileTerm()
+
         self.out.write("</term>\n")
 
     def compileExpressionList(self):
@@ -181,7 +223,7 @@ class CompilationEngine:
             self.compileExpression()
             count += 1
             while self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() == ",":
-                self._write_token()          # the comma
+                self._write_token()
                 self.compileExpression()
                 count += 1
         self.out.write("</expressionList>\n")
