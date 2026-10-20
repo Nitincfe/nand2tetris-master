@@ -68,7 +68,7 @@ class JackTokenizer:
                 text = ""
                 while i < len(line) and line[i].isdigit():
                     text += line[i]
-                i += 1
+                    i += 1
                 tokens.append((INT_CONST, text))
 
             elif ch.isalpha() or ch == "_":
@@ -83,10 +83,14 @@ class JackTokenizer:
 
             elif ch == '"':
                 text = ""
+                i += 1
                 while i < len(line) and line[i] != '"':
                     text += line[i]
                     i += 1
                 tokens.append((STRING_CONST, text))
+                i += 1
+
+            else:
                 i += 1
 
         return tokens
