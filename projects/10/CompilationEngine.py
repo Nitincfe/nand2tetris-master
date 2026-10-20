@@ -135,7 +135,7 @@ class CompilationEngine:
         self._write_token()
         self.compileExpression()
         self._write_token()
-        self.out.write("</letStatement\n")
+        self.out.write("</letStatement>\n")
 
     def compileWhile(self):
         self.out.write("<whileStatement>\n")
@@ -180,9 +180,12 @@ class CompilationEngine:
         if not (self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() == ")"):
             self.compileExpression()
             count += 1
+            while self.tokenizer.tokenType() == SYMBOL and self.tokenizer.symbol() == ",":
+                self._write_token()          # the comma
+                self.compileExpression()
+                count += 1
         self.out.write("</expressionList>\n")
         return count
-
 
     def close(self):
         self.out.close()
